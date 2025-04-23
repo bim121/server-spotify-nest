@@ -1,14 +1,12 @@
-import { Controller, Get, UseInterceptors, UploadedFile, UploadedFiles, Query } from "@nestjs/common";
+import { Controller, Get, UseInterceptors, UploadedFiles, Query } from "@nestjs/common";
 import { Delete, Post } from "@nestjs/common/decorators/http/request-mapping.decorator";
 import { Body, Param } from "@nestjs/common/decorators/http/route-params.decorator";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
-import { FilesInterceptor } from "@nestjs/platform-express";
 import { ObjectId } from "mongoose";
-import { off } from "process";
 import { CreateCommentDto } from "./dto/create-comment-dto";
 import { CreateTrackDto } from "./dto/create-track-dto";
 import { TrackService } from "./track.service";
-
+import { Track } from './schemas/track.schemas';
 
 @Controller('/tracks')
 export class TrackController{
@@ -20,8 +18,9 @@ export class TrackController{
         { name: 'picture', maxCount: 1 },
         { name: 'audio', maxCount: 1 },
     ]))
-    create(@UploadedFiles() files, @Body() dto: CreateTrackDto): Promise<import("d:/programming/javaScript/fullstack/spotify/server/src/track/schemas/track.schemas").Track>{
+    create(@UploadedFiles() files, @Body() dto: CreateTrackDto): any{
         const {picture, audio} = files;
+        console.log(files)
         return this.trackService.create(dto, picture[0], audio[0]);
     }
 
