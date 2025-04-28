@@ -1,61 +1,57 @@
-import { Controller, Get, UseInterceptors, UploadedFiles, Query } from "@nestjs/common";
-import { Delete, Post } from "@nestjs/common/decorators/http/request-mapping.decorator";
-import { Body, Param } from "@nestjs/common/decorators/http/route-params.decorator";
+import { Controller, Get, Post, Delete, Body, Param, Query, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
-import { ObjectId } from "mongoose";
-import { CreateCommentDto } from "./dto/create-comment-dto";
 import { CreateTrackDto } from "./dto/create-track-dto";
+import { CreateCommentDto } from "./dto/create-comment-dto";
 import { TrackService } from "./track.service";
-import { Track } from './schemas/track.schemas';
 
 @Controller('/tracks')
-export class TrackController{
-    constructor(private trackService: TrackService){
+export class TrackController {
+    constructor(private readonly trackService: TrackService) {}
 
-    }
     @Post()
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'picture', maxCount: 1 },
         { name: 'audio', maxCount: 1 },
     ]))
-    create(@UploadedFiles() files, @Body() dto: CreateTrackDto): any{
-        const {picture, audio} = files;
-        console.log(files)
-        return this.trackService.create(dto, picture[0], audio[0]);
+    async create(
+        @UploadedFiles() files: { picture?: Express.Multer.File[], audio?: Express.Multer.File[] },
+        @Body() dto: CreateTrackDto
+    ) {
+        const picture = files.picture?.[0];
+        const audio = files.audio?.[0];
+        return this.trackService.create(dto, picture, audio);
     }
 
     @Get()
-    getAll(@Query('count') count: number,
-    @Query('offset') offset: number){
+    async getAll(
+        @Query('count') count?: number,
+        @Query('offset') offset?: number,
+    ) {
         return this.trackService.getAll(count, offset);
     }
 
     @Get('/search')
-    search(@Query('query') query){
+    async search(@Query('query') query: string) {
         return this.trackService.search(query);
     }
 
     @Get(':id')
-    getOne(@Param('id') id: ObjectId){
+    async getOne(@Param('id') id: number) {
         return this.trackService.getOne(id);
     }
 
     @Delete(':id')
-    delete(@Param('id') id:ObjectId){
+    async delete(@Param('id') id: number) {
         return this.trackService.delete(id);
     }
 
     @Post('/comment')
-    addComment(@Body() dto: CreateCommentDto){
+    async addComment(@Body() dto: CreateCommentDto) {
         return this.trackService.addComment(dto);
     }
 
     @Post('/listen/:id')
-    listen(@Param('id') id: ObjectId){
+    async listen(@Param('id') id: number) {
         return this.trackService.listen(id);
     }
-}
-
-function UploadFiles() {
-    throw new Error("Function not implemented.");
 }
