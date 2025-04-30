@@ -8,7 +8,7 @@ import * as path from 'path'
 @Module({
     imports: [
         ServeStaticModule.forRoot({rootPath: path.resolve(__dirname, 'static')}),
-        MongooseModule.forRoot('mongodb+srv://bim121:Password@cluster0.bn7wfx9.mongodb.net'),
+        MongooseModule.forRoot('mongodb+srv://bim121:Password@cluster0.mdxjhdr.mongodb.net/'),
         TrackModule, 
         FileModule
     ]
