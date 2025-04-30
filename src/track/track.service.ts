@@ -37,7 +37,7 @@ export class TrackService {
 
   public async getOne(id: number) {
     const track = await this.prisma.track.findUnique({
-      where: { id },
+      where: { id: Number(id) },
       include: {
         comments: true,
       },
