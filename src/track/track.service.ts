@@ -1,60 +1,90 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model, ObjectId } from "mongoose";
 import { FileService, FileType } from "src/file/file.service";
 import { CreateCommentDto } from "./dto/create-comment-dto";
 import { CreateTrackDto } from "./dto/create-track-dto";
-import { Comment, CommentDocument } from "./schemas/comment.schema";
-import { Track, TrackDocument } from "./schemas/track.schemas";
-
+import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
-export class TrackService{
+export class TrackService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly fileService: FileService
+  ) {}
 
-    constructor(@InjectModel(Track.name) private trackModel: Model<TrackDocument>,
-    @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
-    private fileService: FileService){}
+  public async create(dto: CreateTrackDto, picture: Express.Multer.File, audio: Express.Multer.File) {
+    const audioPath = this.fileService.createFile(FileType.AUDIO, audio);
+    const picturePath = this.fileService.createFile(FileType.IMAGE, picture);
 
-    async create(dto: CreateTrackDto, picture, audio) : Promise<Track>{
-        const audioPath = this.fileService.createFile(FileType.AUDIO, audio);
-        const picturePath = this.fileService.createFile(FileType.IMAGE, picture);
-        const track = await this.trackModel.create({...dto, listens: 0, audio: audioPath, picture:picturePath});
-        return track;
-    }
+    const track = await this.prisma.track.create({
+      data: {
+        ...dto,
+        listens: 0,
+        audio: audioPath,
+        picture: picturePath,
+      },
+    });
 
-    async getAll(count = 10, offset = 0): Promise<Track[] >{
-        const tracks = await this.trackModel.find().skip(Number(offset)).limit(Number(count));
-        return tracks;
-    }
+    return track;
+  }
 
-    async getOne(id: ObjectId): Promise<Track>{
-        const track = await (await this.trackModel.findById(id)).populate('comments');
-        return track;
-    }
+  public async getAll(count = 10, offset = 0) {
+    const tracks = await this.prisma.track.findMany({
+      skip: Number(offset),
+      take: Number(count),
+    });
+    return tracks;
+  }
 
-    async delete(id: ObjectId): Promise<ObjectId>{
-        const track = await this.trackModel.findByIdAndDelete(id);
-        return track.id;
-    }
+  public async getOne(id: number) {
+    const track = await this.prisma.track.findUnique({
+      where: { id },
+      include: {
+        comments: true,
+      },
+    });
+    return track;
+  }
 
-    async addComment(dto: CreateCommentDto): Promise<Comment> {
-        const track = await this.trackModel.findById(dto.trackId);
-        const comment = await this.commentModel.create({...dto});
-        track.comments.push(comment.id);
-        await track.save();
-        return comment;
-    }
+  public async delete(id: number) {
+    const track = await this.prisma.track.delete({
+      where: { id },
+    });
+    return track.id;
+  }
 
-    async listen(id: ObjectId){
-        const track = await this.trackModel.findById(id);
-        track.listens += 1;
-        track.save();
-    }
+  public async addComment(dto: CreateCommentDto) {
+    const comment = await this.prisma.comment.create({
+      data: {
+        username: dto.username,
+        text: dto.text,
+        track: {
+          connect: { id: dto.trackId },
+        },
+      },
+    });
+    return comment;
+  }
 
-    async search(query: string): Promise<Track[]> {
-        const tracks = await this.trackModel.find({
-            name: {$regex: new RegExp(query, 'i')}
-        })
-        return tracks;
-    }
+  public async listen(id: number) {
+    await this.prisma.track.update({
+      where: { id },
+      data: {
+        listens: {
+          increment: 1,
+        },
+      },
+    });
+  }
+
+  public async search(query: string) {
+    const tracks = await this.prisma.track.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+    });
+    return tracks;
+  }
 }
