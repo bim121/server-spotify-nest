@@ -17,11 +17,14 @@ model Comment {
 
 model Track {
   id       Int       @id @default(autoincrement())
-  name     String
+  title     String
   artist   String
-  text     String
-  listens  Int
-  picture  String
+  description String @default("No description")
+  popularity  Int
+  image  String
   audio    String
   comments Comment[]
+  releaseDate String
+  duration  String
+  genre  String
 }

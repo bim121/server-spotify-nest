@@ -1,6 +1,8 @@
 export class CreateTrackDto {
-    readonly name: string;     
-    readonly artist: string;   
-    readonly text: string;    
-  }
+  readonly title: string;
+  readonly artist: string;
+  readonly description: string;
+  readonly genre: string;
+  readonly releaseDate: string;
+}
   

@@ -11,16 +11,17 @@ export class TrackService {
     private readonly fileService: FileService
   ) {}
 
-  public async create(dto: CreateTrackDto, picture: Express.Multer.File, audio: Express.Multer.File) {
-    const audioPath = this.fileService.createFile(FileType.AUDIO, audio);
-    const picturePath = this.fileService.createFile(FileType.IMAGE, picture);
+  public async create(dto: CreateTrackDto, image: Express.Multer.File, audio: Express.Multer.File) {
+    const saveAudio = await this.fileService.createFile(FileType.AUDIO, audio);
+    const saveImage = await this.fileService.createFile(FileType.IMAGE, image);
 
     const track = await this.prisma.track.create({
       data: {
         ...dto,
-        listens: 0,
-        audio: audioPath,
-        picture: picturePath,
+        popularity: 0,
+        audio: saveAudio.filePath,
+        image: saveImage.filePath,
+        duration: saveAudio.duration
       },
     });
 
@@ -69,7 +70,7 @@ export class TrackService {
     await this.prisma.track.update({
       where: { id },
       data: {
-        listens: {
+        popularity: {
           increment: 1,
         },
       },
@@ -79,7 +80,7 @@ export class TrackService {
   public async search(query: string) {
     const tracks = await this.prisma.track.findMany({
       where: {
-        name: {
+        title: {
           contains: query,
           mode: 'insensitive',
         },
