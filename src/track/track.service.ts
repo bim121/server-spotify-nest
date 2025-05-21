@@ -12,16 +12,16 @@ export class TrackService {
   ) {}
 
   public async create(dto: CreateTrackDto, image: Express.Multer.File, audio: Express.Multer.File) {
-    const saveAudio = await this.fileService.createFile(FileType.AUDIO, audio);
-    const saveImage = await this.fileService.createFile(FileType.IMAGE, image);
+    const saveAudio = await this.fileService.uploadToCloudinary(audio, FileType.AUDIO);
+    const saveImage = await this.fileService.uploadToCloudinary(image, FileType.IMAGE);
 
     const track = await this.prisma.track.create({
       data: {
         ...dto,
         popularity: 0,
-        audio: saveAudio.filePath,
-        image: saveImage.filePath,
-        duration: saveAudio.duration
+        audio: saveAudio.url,
+        image: saveImage.url,
+        duration: saveAudio.duration,
       },
     });
 

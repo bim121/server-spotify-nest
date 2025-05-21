@@ -1,8 +1,9 @@
 import {Module} from "@nestjs/common";
 import { FileService } from "./file.service";
+import { CloudnianaryProvider } from "./cloudinary";
 
 @Module({
-    providers: [FileService]
+    providers: [FileService, CloudnianaryProvider]
 })
 
 export class FileModule{}

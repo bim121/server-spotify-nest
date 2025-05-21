@@ -5,6 +5,8 @@ import { TrackModule } from "./track/track.module";
 import * as path from "path";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ConfigModule } from "@nestjs/config";
+import { UserModule } from "./user/user.module";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
   imports: [
@@ -12,9 +14,13 @@ import { ConfigModule } from "@nestjs/config";
       rootPath: path.resolve(__dirname, 'static'),
     }),
     PrismaModule,
+    UserModule,
+    AuthModule,
     TrackModule,
     FileModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
 })
 export class AppModule {}
