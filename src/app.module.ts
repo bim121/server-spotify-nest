@@ -4,6 +4,7 @@ import { FileModule } from "./file/file.module";
 import { TrackModule } from "./track/track.module";
 import * as path from "path";
 import { PrismaModule } from "./prisma/prisma.module";
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PrismaModule } from "./prisma/prisma.module";
     PrismaModule,
     TrackModule,
     FileModule,
+    ConfigModule.forRoot(),
   ],
 })
 export class AppModule {}

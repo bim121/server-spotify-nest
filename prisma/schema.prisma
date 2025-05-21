@@ -16,15 +16,22 @@ model Comment {
 }
 
 model Track {
-  id       Int       @id @default(autoincrement())
-  title     String
-  artist   String
-  description String @default("No description")
+  id          Int       @id @default(autoincrement())
+  title       String
+  artist      String
+  description String    @default("No description")
   popularity  Int
-  image  String
-  audio    String
-  comments Comment[]
+  image       String
+  audio       String
   releaseDate String
-  duration  String
-  genre  String
+  duration    String
+  genre       String
+  comments    Comment[]
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  name     String?
+  password String
 }
