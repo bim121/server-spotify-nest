@@ -8,11 +8,13 @@ datasource db {
 }
 
 model Comment {
-  id       Int    @id @default(autoincrement())
-  username String
-  text     String
-  trackId  Int
-  track    Track  @relation(fields: [trackId], references: [id])
+  id        Int      @id @default(autoincrement())
+  text      String
+  timestamp DateTime @default(now())
+  track     Track    @relation(fields: [trackId], references: [id])
+  trackId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
 }
 
 model Track {
@@ -34,4 +36,5 @@ model User {
   email    String  @unique
   name     String?
   password String
+  comments Comment[]
 }

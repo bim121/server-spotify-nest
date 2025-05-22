@@ -32,6 +32,13 @@ export class TrackService {
     const tracks = await this.prisma.track.findMany({
       skip: Number(offset),
       take: Number(count),
+      include: {
+        comments: {
+          include: {
+            user: true, 
+          },
+        },
+      },
     });
     return tracks;
   }
@@ -40,11 +47,16 @@ export class TrackService {
     const track = await this.prisma.track.findUnique({
       where: { id: Number(id) },
       include: {
-        comments: true,
+        comments: {
+          include: {
+            user: true, 
+          },
+        },
       },
     });
     return track;
   }
+
 
   public async delete(id: number) {
     const track = await this.prisma.track.delete({
@@ -53,17 +65,15 @@ export class TrackService {
     return track.id;
   }
 
-  public async addComment(dto: CreateCommentDto) {
-    const comment = await this.prisma.comment.create({
+  async createComment(trackId: number, userId: number, text: string) {
+    const numericTrackId = Number(trackId);
+    return this.prisma.comment.create({
       data: {
-        username: dto.username,
-        text: dto.text,
-        track: {
-          connect: { id: dto.trackId },
-        },
+        text,
+        track: { connect: { id: numericTrackId } },
+        user: { connect: { id: userId } },
       },
     });
-    return comment;
   }
 
   public async listen(id: number) {
