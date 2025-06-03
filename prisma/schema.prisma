@@ -16,6 +16,14 @@ model Comment {
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
 }
+model Playlist {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  coverImage  String
+  createdAt   DateTime  @default(now())
+  tracks      Track[]   @relation("PlaylistTracks")
+}
 
 model Track {
   id          Int       @id @default(autoincrement())
@@ -29,6 +37,7 @@ model Track {
   duration    String
   genre       String
   comments    Comment[]
+  playlists   Playlist[] @relation("PlaylistTracks")
 }
 
 model User {

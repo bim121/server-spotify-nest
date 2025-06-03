@@ -7,6 +7,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { ConfigModule } from "@nestjs/config";
 import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
+import { PlaylistModule } from "./playlist/playlist.module";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from "./auth/auth.module";
     AuthModule,
     TrackModule,
     FileModule,
+    PlaylistModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
